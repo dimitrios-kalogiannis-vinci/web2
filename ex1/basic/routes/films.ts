@@ -35,7 +35,58 @@ const films = [
 
 // READ ALL - GET /films
 router.get('/', (req: Request, res: Response) => {
+  const minDurationParam = req.query['duration'];
+
+  if(minDurationParam!==undefined){
+    const minDuration = Number(minDurationParam);
+    if(!isNaN(minDuration) || minDuration <= 0){
+      return res.status(400).json({error: "Le paramètre 'duration' doit être un nombre positif."});
+    }
+    const filteredFilms = films.filter(film => film.duration >= minDuration);
+    return res.json(filteredFilms);
+  }
   res.json(films);
+});
+
+router.get('/:id', (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  if(isNaN(id)){
+    return res.status(400).json({error: "L'id doit être un nombre."});
+  }
+  const film = films.find(f => f.id === id);
+  if(!film){
+    return res.status(404).json({error: "Film non trouvé."});
+  }
+  res.json(film);
+});
+
+router.post('/', (req: Request, res: Response) => {
+  const { title, director, duration, budget, description, imageUrl } = req.body;
+  if (!title || !director || !duration) {
+    return res.status(400).json({ error: "Tous les champs basiques sont requis." });
+  }
+
+  if (typeof title !== 'string' || typeof director !== 'string') {
+    return res.status(400).json({ error: "Titre et directeur doivent être en string" });
+  }
+
+  if (typeof duration !== 'number' || duration <= 0) {
+    return res.status(400).json({ error: "Durée doit être en entier positif" });
+  }
+  if(budget !== undefined && (typeof budget !== 'number' || budget < 0)){
+    return res.status(400).json({ error: "Budget doit être un entier positif" });
+  }
+  const newFilm = {
+    id: films.length + 1,
+    title,
+    director,
+    duration,
+    budget,
+    description,
+    imageUrl
+  };
+  films.push(newFilm);
+  res.status(201).json(newFilm);
 });
 
 export default router;

@@ -1,0 +1,17 @@
+###GET ALL
+GET http://localhost:3000/films
+###GET ALL with min duration filter
+GET http://localhost:3000/films?duration=100
+###GET ONE
+GET http://localhost:3000/films/1
+###GET ONE not found
+GET http://localhost:3000/films/999
+###CREATE
+POST http://localhost:3000/films
+Content-Type: application/json
+
+{
+  "title": "Inception",
+  "director": "Christopher Nolan",
+  "duration": 148
+}
