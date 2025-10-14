@@ -1,17 +1,31 @@
-###GET ALL
+### Tous les films
 GET http://localhost:3000/films
-###GET ALL with min duration filter
-GET http://localhost:3000/films?duration=100
-###GET ONE
-GET http://localhost:3000/films/1
-###GET ONE not found
-GET http://localhost:3000/films/999
-###CREATE
-POST http://localhost:3000/films
 Content-Type: application/json
 
-{
-  "title": "Inception",
-  "director": "Christopher Nolan",
-  "duration": 148
-}
+### Filtrer par durée minimale
+GET http://localhost:3000/films?minimum-duration=150
+Content-Type: application/json
+
+### Filtrer par titre commençant par "I"
+GET http://localhost:3000/films?title-starts-with=I
+Content-Type: application/json
+
+### Trier par titre (ordre croissant)
+GET http://localhost:3000/films?sort-by=title&order=asc
+Content-Type: application/json
+
+### Trier par durée (ordre décroissant)
+GET http://localhost:3000/films?sort-by=duration&order=desc
+Content-Type: application/json
+
+### Pagination : page 1, 2 films par page
+GET http://localhost:3000/films?page=1&limit=2
+Content-Type: application/json
+
+### Pagination : page 2, 2 films par page
+GET http://localhost:3000/films?page=2&limit=2
+Content-Type: application/json
+
+### Combiner filtres et tri
+GET http://localhost:3000/films?title-starts-with=i&sort-by=duration&order=desc&page=1&limit=2
+Content-Type: application/json

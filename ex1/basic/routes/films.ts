@@ -35,6 +35,8 @@ const films = [
 
 // READ ALL - GET /films
 router.get('/', (req: Request, res: Response) => {
+  let results = films;
+  // Filtrage par durée minimale si le query param 'duration' est présent
   const minDurationParam = req.query['duration'];
 
   if(minDurationParam!==undefined){
