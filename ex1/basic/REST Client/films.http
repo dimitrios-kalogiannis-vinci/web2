@@ -1,31 +1,34 @@
-### Tous les films
-GET http://localhost:3000/films
+### DELETE un film
+DELETE http://localhost:3000/films/2
 Content-Type: application/json
 
-### Filtrer par durée minimale
-GET http://localhost:3000/films?minimum-duration=150
+### PATCH un film
+PATCH http://localhost:3000/films/1
 Content-Type: application/json
 
-### Filtrer par titre commençant par "I"
-GET http://localhost:3000/films?title-starts-with=I
+{
+  "title": "Inception Updated",
+  "budget": 170
+}
+
+### PUT un film existant (remplacement complet)
+PUT http://localhost:3000/films/1
 Content-Type: application/json
 
-### Trier par titre (ordre croissant)
-GET http://localhost:3000/films?sort-by=title&order=asc
+{
+  "title": "Inception Replaced",
+  "director": "Christopher Nolan",
+  "duration": 150,
+  "budget": 175
+}
+
+### PUT film non existant (création)
+PUT http://localhost:3000/films/10
 Content-Type: application/json
 
-### Trier par durée (ordre décroissant)
-GET http://localhost:3000/films?sort-by=duration&order=desc
-Content-Type: application/json
-
-### Pagination : page 1, 2 films par page
-GET http://localhost:3000/films?page=1&limit=2
-Content-Type: application/json
-
-### Pagination : page 2, 2 films par page
-GET http://localhost:3000/films?page=2&limit=2
-Content-Type: application/json
-
-### Combiner filtres et tri
-GET http://localhost:3000/films?title-starts-with=i&sort-by=duration&order=desc&page=1&limit=2
-Content-Type: application/json
+{
+  "title": "New Movie",
+  "director": "Some Director",
+  "duration": 120,
+  "budget": 50
+}
