@@ -1,40 +1,11 @@
 import express, { Request, Response, NextFunction } from "express";
-import fs from "fs";
-import path from "path";
+import { FilmService, Film } from "./services/films";
 
 const app = express();
 const port = 3000;
+const filmService = new FilmService();
 
 app.use(express.json());
-
-// ==========================
-// Chemin du fichier JSON
-// ==========================
-const dataFile = path.join(__dirname, "../data/films.json");
-
-// ==========================
-// Fonction pour lire les films depuis le fichier
-// ==========================
-function readFilms(): any[] {
-  try {
-    const data = fs.readFileSync(dataFile, "utf-8");
-    return JSON.parse(data);
-  } catch (err) {
-    console.error("Erreur lecture films.json", err);
-    return [];
-  }
-}
-
-// ==========================
-// Fonction pour écrire les films dans le fichier
-// ==========================
-function writeFilms(films: any[]) {
-  try {
-    fs.writeFileSync(dataFile, JSON.stringify(films, null, 2), "utf-8");
-  } catch (err) {
-    console.error("Erreur écriture films.json", err);
-  }
-}
 
 // ==========================
 // Middleware compteur GET
@@ -52,7 +23,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // GET /films
 // ==========================
 app.get("/films", (req: Request, res: Response) => {
-  const films = readFilms();
+  const films = filmService.getAll();
   res.status(200).json(films);
 });
 
@@ -60,11 +31,10 @@ app.get("/films", (req: Request, res: Response) => {
 // GET /films/:id
 // ==========================
 app.get("/films/:id", (req: Request, res: Response) => {
-  const films = readFilms();
   const id = Number(req.params.id);
   if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
 
-  const film = films.find(f => f.id === id);
+  const film = filmService.getById(id);
   if (!film) return res.status(404).json({ error: "Film not found" });
 
   res.status(200).json(film);
@@ -74,7 +44,6 @@ app.get("/films/:id", (req: Request, res: Response) => {
 // POST /films
 // ==========================
 app.post("/films", (req: Request, res: Response) => {
-  const films = readFilms();
   const { title, director, duration, budget } = req.body;
 
   if (!title || !director || duration === undefined)
@@ -86,19 +55,9 @@ app.post("/films", (req: Request, res: Response) => {
   if (budget !== undefined && (typeof budget !== "number" || budget <= 0))
     return res.status(400).json({ error: "Invalid budget" });
 
-  const exists = films.find(f => f.title === title && f.director === director);
-  if (exists) return res.status(409).json({ error: "Film already exists" });
+  const newFilm = filmService.create({ title, director, duration, budget });
+  if (!newFilm) return res.status(409).json({ error: "Film already exists" });
 
-  const newFilm = {
-    id: films.length ? Math.max(...films.map(f => f.id)) + 1 : 1,
-    title,
-    director,
-    duration,
-    budget
-  };
-
-  films.push(newFilm);
-  writeFilms(films);
   res.status(201).json(newFilm);
 });
 
@@ -106,12 +65,8 @@ app.post("/films", (req: Request, res: Response) => {
 // PATCH /films/:id
 // ==========================
 app.patch("/films/:id", (req: Request, res: Response) => {
-  const films = readFilms();
   const id = Number(req.params.id);
   if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
-
-  const film = films.find(f => f.id === id);
-  if (!film) return res.status(404).json({ error: "Film not found" });
 
   const { title, director, duration, budget } = req.body;
 
@@ -121,20 +76,16 @@ app.patch("/films/:id", (req: Request, res: Response) => {
   if (budget !== undefined && (typeof budget !== "number" || budget <= 0))
     return res.status(400).json({ error: "Invalid budget" });
 
-  if (title !== undefined) film.title = title;
-  if (director !== undefined) film.director = director;
-  if (duration !== undefined) film.duration = duration;
-  if (budget !== undefined) film.budget = budget;
+  const updatedFilm = filmService.update(id, { title, director, duration, budget });
+  if (!updatedFilm) return res.status(404).json({ error: "Film not found" });
 
-  writeFilms(films);
-  res.status(200).json(film);
+  res.status(200).json(updatedFilm);
 });
 
 // ==========================
 // PUT /films/:id
 // ==========================
 app.put("/films/:id", (req: Request, res: Response) => {
-  const films = readFilms();
   const id = Number(req.params.id);
   if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
 
@@ -148,37 +99,21 @@ app.put("/films/:id", (req: Request, res: Response) => {
   if (budget !== undefined && (typeof budget !== "number" || budget <= 0))
     return res.status(400).json({ error: "Invalid budget" });
 
-  const existingIndex = films.findIndex(f => f.id === id);
-  const newFilm = { id, title, director, duration, budget };
-
-  if (existingIndex !== -1) {
-    films[existingIndex] = newFilm;
-    writeFilms(films);
-    return res.status(200).json(newFilm);
-  }
-
-  // Création si l'ID est libre
-  if (films.find(f => f.id === id)) return res.status(409).json({ error: "ID already exists" });
-
-  films.push(newFilm);
-  writeFilms(films);
-  res.status(201).json(newFilm);
+  const film = filmService.replace(id, { title, director, duration, budget });
+  res.status(filmService.getById(id) ? 200 : 201).json(film);
 });
 
 // ==========================
 // DELETE /films/:id
 // ==========================
 app.delete("/films/:id", (req: Request, res: Response) => {
-  const films = readFilms();
   const id = Number(req.params.id);
   if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
 
-  const index = films.findIndex(f => f.id === id);
-  if (index === -1) return res.status(404).json({ error: "Film not found" });
+  const deleted = filmService.delete(id);
+  if (!deleted) return res.status(404).json({ error: "Film not found" });
 
-  const deleted = films.splice(index, 1);
-  writeFilms(films);
-  res.status(200).json(deleted[0]);
+  res.status(200).json(deleted);
 });
 
 // ==========================
@@ -187,4 +122,3 @@ app.delete("/films/:id", (req: Request, res: Response) => {
 app.listen(port, () => {
   console.log(`✅ Serveur en écoute sur http://localhost:${port}`);
 });
- 
