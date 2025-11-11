@@ -1,69 +1,39 @@
-const PageTitle = ({ title }: { title: string }) => {
-  return <h1>{title}</h1>;
-};
+// src/App.tsx
+import React from "react";
+import PageTitle from "./components/PageTitle";
+import Cinema from "./components/cinema";
 
-const Cinema = ({
-  name,
-  movie1Title,
-  movie1Director,
-  movie2Title,
-  movie2Director,
-}: {
-  name: string;
-  movie1Title: string;
-  movie1Director: string;
-  movie2Title: string;
-  movie2Director: string;
-}) => {
-  return (
-    <div>
-      <h2>{name}</h2>
-      <ul>
-        <li>
-          <strong>{movie1Title}</strong> - Réalisateur : {movie1Director}
-        </li>
-        <li>
-          <strong>{movie2Title}</strong> - Réalisateur : {movie2Director}
-        </li>
-      </ul>
-    </div>
-  );
+type Movie = {
+  title: string;
+  director: string;
 };
 
 const App = () => {
   const pageTitle = "Informations sur les films dans les cinémas";
 
   const cinema1Name = "UGC DeBrouckère";
-  const cinema1Movie1Title = "Film 1 - DeBrouckère";
-  const cinema1Movie1Director = "Director A";
-  const cinema1Movie2Title = "Film 2 - DeBrouckère";
-  const cinema1Movie2Director = "Director B";
+  const moviesCinema1: Movie[] = [
+    { title: "HAIKYU-THE DUMPSTER BATTLE", director: "Susumu Mitsunaka" },
+    { title: "GOODBYE JULIA", director: "Mohamed Kordofani" },
+    { title: "INCEPTION", director: "Christopher Nolan" },
+    { title: "PARASITE", director: "Bong Joon-ho" },
+  ];
 
   const cinema2Name = "UGC Toison d'Or";
-  const cinema2Movie1Title = "Film 1 - Toison d'Or";
-  const cinema2Movie1Director = "Director C";
-  const cinema2Movie2Title = "Film 2 - Toison d'Or";
-  const cinema2Movie2Director = "Director D";
+  const moviesCinema2: Movie[] = [
+    { title: "THE WATCHERS", director: "Ishana Night Shyamalan" },
+    { title: "BAD BOYS: RIDE OR DIE", director: "Adil El Arbi, Bilall Fallah" },
+    { title: "TENET", director: "Christopher Nolan" },
+    { title: "THE IRISHMAN", director: "Martin Scorsese" },
+  ];
 
   return (
     <div>
       <PageTitle title={pageTitle} />
 
-      <Cinema
-        name={cinema1Name}
-        movie1Title={cinema1Movie1Title}
-        movie1Director={cinema1Movie1Director}
-        movie2Title={cinema1Movie2Title}
-        movie2Director={cinema1Movie2Director}
-      />
+      <Cinema name={cinema1Name} movies={moviesCinema1} />
 
-      <Cinema
-        name={cinema2Name}
-        movie1Title={cinema2Movie1Title}
-        movie1Director={cinema2Movie1Director}
-        movie2Title={cinema2Movie2Title}
-        movie2Director={cinema2Movie2Director}
-      />
+      <Cinema name={cinema2Name} movies={moviesCinema2} />
     </div>
   );
 };
