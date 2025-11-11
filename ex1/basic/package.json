@@ -24,12 +24,13 @@
   },
 
   "dependencies": {
-    "express": "^5.1.0",
+    "express": "^5.1.0", 
     "uuid": "^13.0.0"
   },
-  "devDependencies": {
+  "devDependencies": { 
     "@types/express": "^5.0.3",
     "@types/uuid": "^11.0.0"
   }
-}
+
+} 
 
